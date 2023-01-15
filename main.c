@@ -5,11 +5,23 @@
 #include <gmp.h>
 
 void PrintH (){
-    system ("./helpprint.sh");
+    system ("../helpprint.sh");
     _Exit (0);
 }
 
-void KeyGen(char * isFile, int bits){
+mpz_t *PrimeNumber(){
+    mpz_t *res;
+    mpz_t a;
+
+
+
+    res = &a;
+    return res;
+}
+
+void KeyGen(char *isFile, int bits){
+
+
 
 }
 

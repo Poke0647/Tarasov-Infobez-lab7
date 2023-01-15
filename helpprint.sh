@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cat ./help.txt
+cat ../help.txt

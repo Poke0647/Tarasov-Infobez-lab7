@@ -8,7 +8,7 @@ GMPLIB = -lgmp
 
 
 lab7: Makefile main.c
-	$(CC) -o $@ $(WARNINGS) $(DEBUG) $(OPTIMIZE) main.c $(GMPLIB)
+	$(CC) -o ./exec/$@ $(WARNINGS) $(DEBUG) $(OPTIMIZE) main.c $(GMPLIB)
 
 clean:
 	rm -f lab7
