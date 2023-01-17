@@ -16,8 +16,9 @@ clean:
 # Builder will call this to install the application before running.
 install:
 	echo "Installing is not supported"
+	exec/lab7 1024
 
 # Builder uses this target to run your application.
 run:
-	./lab7
+	exec/lab7 1024
 
