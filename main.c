@@ -2,7 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <gmp.h>
+#ifdef __linux__
+    #include <gmp.h>
+#endif
+#ifdef __MACH__
+    #include "/opt/homebrew/Cellar/gmp/6.2.1_1/include/gmp.h"
+#endif
+
+
+
 
 void PrintH (){
     system ("../helpprint.sh");
@@ -13,7 +21,8 @@ mpz_t *PrimeNumber(){
     mpz_t *res;
     mpz_t a;
 
-
+    gmp_randstate_t randd;
+    
 
     res = &a;
     return res;
