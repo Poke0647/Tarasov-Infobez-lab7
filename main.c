@@ -95,7 +95,7 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     system("./printer.sh 2");
 
 
-    scanf("%d", &e);
+    scanf("%d\n", &e);
 
     mpz_t ee;
     mpz_init(ee);
@@ -119,6 +119,7 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     }
 
 
+    printf("dada %d\n", mpz_cmp_ui(ee, 0));
 
     /* int div; */
     /* if (n1 == n2) */
@@ -132,15 +133,33 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     /* } */
     /* return div; */
 
+    mpz_t d;
+    mpz_init(d);
+    while (mpz_cmp_ui(ee, 0) != 0){
+    	if (mpz_cmp(ee, eilFuncY) == 0){
+    		mpz_set_ui(ee, 1);
+		break;
+    	}
+	
+    	mpz_sub(d, ee, eilFuncY);
+    	if (mpz_cmp_ui(d, 0) < 0){
+		mpz_neg(d, d);
+		mpz_set(eilFuncY, d);	
+   	 } else if (mpz_cmp_ui(d, 0) > 0){
+		 mpz_set(ee, d);
+	 }
+	gmp_printf("tryy %Zd %Zd %Zd\n", ee, eilFuncY, d);
+    }
+
 
     /* while(mpz_cmp_ui(ee, 0) != 0){ */
     /*         mpz_mod(ee, eilFuncY, ee); */
     /*         mpz_set(eilFuncY, ee); */
     /*         gmp_printf("try %Zd %Zd\n", eilFuncY, ee); */
     /*     } */
-        gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
-        mpz_gcd(ee, eilFuncY, ee);
-        gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
+      //  gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
+//        mpz_gcd(ee, eilFuncY, ee);
+      //  gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
         if (mpz_cmp_ui(ee, 1) != 0){
             e = 1;
         } else {
