@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <gmp.h>
 #include <time.h>
-#include <sys/wait.h>
+
 struct timespec startKG;
 mpz_t prNumForFunc;
 
@@ -51,7 +51,6 @@ mpz_t *PrimeNumber(unsigned long bitts){
     clock_gettime(CLOCK_MONOTONIC_RAW, &startKG);
     unsigned long int seeed = (unsigned) startKG.tv_nsec;
     seeed /= 1000;
-
     printf("PrimeNumber seed: %lu\n", seeed);
 
     gmp_randstate_t randd;
@@ -90,83 +89,79 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     gmp_printf("eilFunc: %Zd\n", eilFuncY);
 
     /* mpz_clears(p, q, eilFuncY2); */
-
-    int e;
-    system("./printer.sh 2");
-
-
-    scanf("%d\n", &e);
-
+//выбор открытой экспоненты и поиск d
     mpz_t ee;
     mpz_init(ee);
 
-    switch (e){
-        case 1:
-            mpz_set_ui(ee, 3);
-            break;
-        case 2:
-            mpz_set_ui(ee, 5);
-            break;
-        case 3:
-            mpz_set_ui(ee, 17);
-            break;
-        case 4:
-            mpz_set_ui(ee, 257);
-            break;
-        case 5:
-            mpz_set_ui(ee, 65537);
-            break;
-    }
+    mpz_t x, y;
+    mpz_init(x);
+    mpz_init(y);
+    mpz_set(x, eilFuncY);
 
+    mpz_t a, a1, a2, b, b1, b2;
+    mpz_inits(a, a1, a2, b, b1, b2);
 
-    printf("dada %d\n", mpz_cmp_ui(ee, 0));
+    mpz_t q1, r, m;
+    mpz_inits(q1, r, m);
 
-    /* int div; */
-    /* if (n1 == n2) */
-    /*     return n1; */
-    /* int d = n1 - n2; */
-    /* if (d < 0){ */
-    /*     d = -d; */
-    /*     div = NOD(n1, d); */
-    /* } else{ */
-    /*     div = NOD(n2, d); */
-    /* } */
-    /* return div; */
+    int e = 0;
+    while (mpz_cmp_ui(m, 1) != 0){
+        e > 0 ? printf("Число не подошло. Выберите другое:\n") : printf("Пожалуйста, выберите открытую экспоненту (введя число 1-5):\n");
+        system("./printer.sh 2");
+        scanf("%d", &e);
 
-    mpz_t d;
-    mpz_init(d);
-    while (mpz_cmp_ui(ee, 0) != 0){
-    	if (mpz_cmp(ee, eilFuncY) == 0){
-    		mpz_set_ui(ee, 1);
-		break;
-    	}
-	
-    	mpz_sub(d, ee, eilFuncY);
-    	if (mpz_cmp_ui(d, 0) < 0){
-		mpz_neg(d, d);
-		mpz_set(eilFuncY, d);	
-   	 } else if (mpz_cmp_ui(d, 0) > 0){
-		 mpz_set(ee, d);
-	 }
-	gmp_printf("tryy %Zd %Zd %Zd\n", ee, eilFuncY, d);
-    }
-
-
-    /* while(mpz_cmp_ui(ee, 0) != 0){ */
-    /*         mpz_mod(ee, eilFuncY, ee); */
-    /*         mpz_set(eilFuncY, ee); */
-    /*         gmp_printf("try %Zd %Zd\n", eilFuncY, ee); */
-    /*     } */
-      //  gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
-//        mpz_gcd(ee, eilFuncY, ee);
-      //  gmp_printf("try %Zd %Zd\n", eilFuncY, ee);
-        if (mpz_cmp_ui(ee, 1) != 0){
-            e = 1;
-        } else {
-            e = 0;
+        switch (e){
+            case 1:
+                mpz_set_ui(ee, 3);
+                break;
+            case 2:
+                mpz_set_ui(ee, 5);
+                break;
+            case 3:
+                mpz_set_ui(ee, 17);
+                break;
+            case 4:
+                mpz_set_ui(ee, 257);
+                break;
+            case 5:
+                mpz_set_ui(ee, 65537);
+                break;
         }
+            //Расширенный алг Евклида
+            /* gmp_printf("\ntry %Zd %Zd\n", eilFuncY, ee); // переделать без использования mpz_gcd */
+            /* mpz_cmp(ee, eilFuncY) > 0 ? mpz_gcd(ee, eilFuncY, ee) : mpz_gcd(ee, ee, eilFuncY); */
 
-    printf("%u\n", e);
+            mpz_set(y, ee);
+
+            mpz_set_ui(a1, 0);
+            mpz_set_ui(a2, 1);
+            mpz_set_ui(b1, 1);
+            mpz_set_ui(b2, 0);
+
+            while (mpz_cmp_ui(y, 0) != 0){
+                mpz_div(q1, x, y);
+                /* mpz_cmp(x, y) > 0 ? mpz_div(q1, x, y) : mpz_div(q1, y, x); */
+                mpz_submul(x, q1, y);
+                mpz_set(r, x);
+                mpz_submul(a2, q1, a1);
+                mpz_set(a, a2);
+                mpz_submul(b2, q1, b1);
+                mpz_set(b, b2);
+
+                mpz_set(x, y);
+                mpz_set(y, r);
+                mpz_set(a2, a1);
+                mpz_set(a1, a);
+                mpz_set(b2, b1);
+                mpz_set(b1, b);
+            }
+            mpz_set(m, x);
+            mpz_set(a, a2);
+            mpz_set(b, b2);
+
+
+            gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b);
+    }
     /* mpz_clears(modulleN, eilFuncY, ee); */
 }
 
