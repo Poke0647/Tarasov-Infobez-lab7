@@ -14,39 +14,6 @@ void PrintH (){
     _Exit (0);
 }
 
-/* def findModInverse(a, m):
-    while a != 0:
-      a = b % a
-      b = a
-
-    if b != 1: */
-/*       return -1; */
-/*    u1 = 1;
-      u2 = 0;
-      u3 = a;
-
-    v1 = 0
-    v2 = 1
-    v3 = m */
-
-/*    while v3 != 0: */
-/*       q = u3 // v3 */
-/*          v1, v2, v3, u1, u2, u3 = (u1 - q * v1), (u2 - q * v2), (u3 - q * v3), v1, v2, v3 */
-/*    return u1 % m */
-
-/* int IsModInv(mpz_t a, mpz_t m){ */
-/* //НОД(a, m) */
-/*     while(mpz_cmp_ui(a, 0) != 0){ */
-/*         mpz_mod(a, a, m); */
-/*         mpz_set(m, a); */
-/*     } */
-/*     if (mpz_cmp_ui(m, 1) != 0){ */
-/*         return -1; */
-/*     } else { */
-/*         return 0; */
-/*     } */
-/* } */
-
 mpz_t *PrimeNumber(unsigned long bitts){
     clock_gettime(CLOCK_MONOTONIC_RAW, &startKG);
     unsigned long int seeed = (unsigned) startKG.tv_nsec;
@@ -68,12 +35,21 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     mpz_t p;
     mpz_init(p);
     mpz_set(p, *PrimeNumber(bits));
-    gmp_printf("p: %Zd \n", p);
+    /* gmp_printf("p: %Zd \n", p); */
+
+    mpz_t pP;
+    mpz_init(pP);
+    mpz_set(pP, p);
 
     mpz_t q;
     mpz_init(q);
     mpz_set(q, *PrimeNumber(bits));
-    gmp_printf("q: %Zd \n", q);
+    /* gmp_printf("q: %Zd \n", q); */
+
+    mpz_t qQ;
+    mpz_init(qQ);
+    mpz_set(qQ, q);
+
     //вычисление модуля
     mpz_t modulleN;
     mpz_init(modulleN);
@@ -86,7 +62,7 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
     mpz_sub_ui(eilFuncY, p, 1);
     mpz_sub_ui(eilFuncY2, q, 1);
     mpz_mul(eilFuncY, eilFuncY, eilFuncY2);
-    gmp_printf("eilFunc: %Zd\n", eilFuncY);
+    /* gmp_printf("eilFunc: %Zd\n", eilFuncY); */
 
     /* mpz_clears(p, q, eilFuncY2); */
 //выбор открытой экспоненты и поиск d
@@ -160,9 +136,24 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
             mpz_set(b, b2);
 
 
-            gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b);
+            /* gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b); */
     }
-    /* mpz_clears(modulleN, eilFuncY, ee); */
+mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m);
+printf("RSAPublicKey ::= SEQUENCE {\n");
+gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
+gmp_printf("            publicExponent     INTEGER,  -- %Zd\n", ee);
+printf("        }\n\n");
+
+printf("RSAPrivateKey ::= SEQUENCE {\n");
+gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
+gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);
+gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
+gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
+gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
+printf("        }\n\n");
+
+
+mpz_clears(pP, qQ, modulleN, eilFuncY, ee);
 }
 
 int main (int argc, char *argv[]) {
