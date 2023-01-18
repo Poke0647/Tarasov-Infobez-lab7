@@ -148,7 +148,7 @@ printf("        }\n\n");
 
 printf("RSAPrivateKey ::= SEQUENCE {\n");
 gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
-gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);
+gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);//ee сделать int а не mpz_t
 gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
 gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
 gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
