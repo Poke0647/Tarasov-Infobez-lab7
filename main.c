@@ -31,6 +31,7 @@ mpz_t *PrimeNumber(unsigned long bitts){
 }
 
 void KeyGen(/*char *isFile,*/ unsigned long bits){
+mpz_init(prNumForFunc);
 //генерация p и q
     mpz_t p;
     mpz_init(p);
@@ -138,6 +139,7 @@ void KeyGen(/*char *isFile,*/ unsigned long bits){
 
             /* gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b); */
     }
+mpz_clear(prNumForFunc);
 mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m);
 printf("RSAPublicKey ::= SEQUENCE {\n");
 gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
@@ -157,7 +159,7 @@ mpz_clears(pP, qQ, modulleN, eilFuncY, ee);
 }
 
 int main (int argc, char *argv[]) {
-    mpz_init(prNumForFunc);
+
     double ts = 0;
     clock_t begin = clock();
     unsigned long kgBitsArg = atoi(argv[1]);
@@ -174,7 +176,7 @@ int main (int argc, char *argv[]) {
 
     /* } else PrintH(); */
 
-    mpz_clear(prNumForFunc);
+
 
     clock_t end = clock();
     ts = (double)(end - begin) / CLOCKS_PER_SEC;
