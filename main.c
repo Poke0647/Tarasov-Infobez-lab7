@@ -30,7 +30,7 @@ mpz_t *PrimeNumber(unsigned long bitts){
     return &prNumForFunc;
 }
 
-void KeyGen(/*char *isFile,*/ unsigned long bits){
+void KeyGen(char *isFile, unsigned long bits){
 mpz_init(prNumForFunc);
 //генерация p и q
     mpz_t p;
@@ -139,23 +139,30 @@ mpz_init(prNumForFunc);
 
             /* gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b); */
     }
-mpz_clear(prNumForFunc);
-mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m);
-printf("RSAPublicKey ::= SEQUENCE {\n");
-gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
-gmp_printf("            publicExponent     INTEGER,  -- %Zd\n", ee);
-printf("        }\n\n");
 
-printf("RSAPrivateKey ::= SEQUENCE {\n");
-gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
-gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);//ee сделать int а не mpz_t
-gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
-gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
-gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
-printf("        }\n\n");
+    if (strcpm(isFile, "-c")){
+	
+	mpz_clear(prNumForFunc);
+	mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m);
+	printf("RSAPublicKey ::= SEQUENCE {\n");
+	gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
+	gmp_printf("            publicExponent     INTEGER,  -- %Zd\n", ee);
+	printf("        }\n\n");
+	
+	printf("RSAPrivateKey ::= SEQUENCE {\n");
+	gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
+	gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);//ee сделать int а не mpz_t
+	gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
+	gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
+	gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
+	printf("        }\n\n");
 
+    } else if (strcmp(isFile, "-f")){
+	
 
-mpz_clears(pP, qQ, modulleN, eilFuncY, ee);
+   }
+
+//mpz_clears(pP, qQ, modulleN, eilFuncY, ee);
 }
 
 int main (int argc, char *argv[]) {
