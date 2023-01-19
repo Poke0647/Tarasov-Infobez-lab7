@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <gmp.h>
 #include <time.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include <fcntl.h>
 
 struct timespec startKG;
 mpz_t prNumForFunc;
@@ -67,48 +70,45 @@ mpz_init(prNumForFunc);
 
     /* mpz_clears(p, q, eilFuncY2); */
 //выбор открытой экспоненты и поиск d
-    mpz_t ee;
-    mpz_init(ee);
 
     mpz_t x, y;
-    mpz_init(x);
-    mpz_init(y);
+    mpz_inits(x, y, NULL);
     mpz_set(x, eilFuncY);
 
     mpz_t a, a1, a2, b, b1, b2;
-    mpz_inits(a, a1, a2, b, b1, b2);
+    mpz_inits(a, a1, a2, b, b1, b2, NULL);
 
     mpz_t q1, r, m;
-    mpz_inits(q1, r, m);
+    mpz_inits(q1, r, m, NULL);
 
-    int e = 0;
+    unsigned long int e = 0;
     while (mpz_cmp_ui(m, 1) != 0){
         e > 0 ? printf("Число не подошло. Выберите другое:\n") : printf("Пожалуйста, выберите открытую экспоненту (введя число 1-5):\n");
         system("./printer.sh 2");
-        scanf("%d", &e);
+        scanf("%lu", &e);
 
         switch (e){
             case 1:
-                mpz_set_ui(ee, 3);
+                e = 3;
                 break;
             case 2:
-                mpz_set_ui(ee, 5);
+                e = 5;
                 break;
             case 3:
-                mpz_set_ui(ee, 17);
+                e = 17;
                 break;
             case 4:
-                mpz_set_ui(ee, 257);
+                e = 257;
                 break;
             case 5:
-                mpz_set_ui(ee, 65537);
+                e = 65537;
                 break;
         }
             //Расширенный алг Евклида
             /* gmp_printf("\ntry %Zd %Zd\n", eilFuncY, ee); // переделать без использования mpz_gcd */
             /* mpz_cmp(ee, eilFuncY) > 0 ? mpz_gcd(ee, eilFuncY, ee) : mpz_gcd(ee, ee, eilFuncY); */
 
-            mpz_set(y, ee);
+            mpz_set_ui(y, e);
 
             mpz_set_ui(a1, 0);
             mpz_set_ui(a2, 1);
@@ -140,54 +140,98 @@ mpz_init(prNumForFunc);
             /* gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b); */
     }
 
-    if (strcpm(isFile, "-c")){
-	
-	mpz_clear(prNumForFunc);
-	mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m);
-	printf("RSAPublicKey ::= SEQUENCE {\n");
-	gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
-	gmp_printf("            publicExponent     INTEGER,  -- %Zd\n", ee);
-	printf("        }\n\n");
-	
-	printf("RSAPrivateKey ::= SEQUENCE {\n");
-	gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
-	gmp_printf("            publicExponent    INTEGER,  -- %Zd\n", ee);//ee сделать int а не mpz_t
-	gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
-	gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
-	gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
-	printf("        }\n\n");
 
-    } else if (strcmp(isFile, "-f")){
-	
+    mpz_clear(prNumForFunc);
+    mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b, b1, b2, q1, r, m, NULL);
 
-   }
+    if (strcmp(isFile, "-c") == 0){
+        //вывод в консоль
+        printf("RSAPublicKey ::= SEQUENCE {\n");
+        gmp_printf("            modulus            INTEGER,  -- %Zd\n", modulleN);
+        printf("            publicExponent     INTEGER,  -- %lu\n", e);
+        printf("        }\n\n");
 
-//mpz_clears(pP, qQ, modulleN, eilFuncY, ee);
+        printf("RSAPrivateKey ::= SEQUENCE {\n");
+        gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
+        printf("            publicExponent    INTEGER,  -- %lu\n", e);
+        gmp_printf("            privateExponent   INTEGER,  -- %Zd\n", b);
+        gmp_printf("            prime1            INTEGER,  -- %Zd\n", pP);
+        gmp_printf("            prime2            INTEGER,  -- %Zd\n", qQ);
+        printf("        }\n\n");
+
+    } else {
+        //вывод в файл
+        int outFileNum = 0;
+        char *outFileName = malloc(sizeof(char[21]));
+        char *outFileName2 = malloc(sizeof(char[22]));
+
+        sprintf(outFileName, "RSAPublicKey.txt");
+        while (access(outFileName, F_OK) == 0){
+            outFileNum++;
+            sprintf(outFileName, "RSAPublicKey%d.txt", outFileNum);
+            if (outFileNum > 1000) {
+                perror("File creation");
+                _exit(0);
+            }
+        }
+
+        if (outFileNum == 0) {
+            sprintf(outFileName2, "RSAPrivateKey.txt");
+        } else {
+            sprintf(outFileName2, "RSAPrivateKey%d.txt", outFileNum);
+        }
+
+        if (access(outFileName2, F_OK) == 0){
+            printf("Удалите или переместите в другой каталог файл %s\n", outFileName);
+        } else {
+            FILE *outFPub;
+            outFPub = fopen(outFileName, "w");
+            fprintf(outFPub, "RSAPublicKey ::= SEQUENCE {\n");
+            gmp_fprintf(outFPub, "            modulus            INTEGER,  -- %Zd\n", modulleN);
+            fprintf(outFPub, "            publicExponent     INTEGER,  -- %lu\n", e);
+            fprintf(outFPub, "        }\n\n");
+            fclose(outFPub);
+
+            FILE *outFPr;
+            outFPr = fopen(outFileName2, "w");
+            fprintf(outFPr, "RSAPrivateKey ::= SEQUENCE {\n");
+            gmp_fprintf(outFPr, "            modulus           INTEGER,  -- %Zd\n", modulleN);
+            fprintf(outFPr, "            publicExponent    INTEGER,  -- %lu\n", e);
+            gmp_fprintf(outFPr, "            privateExponent   INTEGER,  -- %Zd\n", b);
+            gmp_fprintf(outFPr, "            prime1            INTEGER,  -- %Zd\n", pP);
+            gmp_fprintf(outFPr, "            prime2            INTEGER,  -- %Zd\n", qQ);
+            fprintf(outFPr, "        }\n\n");
+            fclose(outFPr);
+            printf("Готово!\n");
+        }
+
+        free(outFileName);
+        free(outFileName2);
+
+    }
+
+mpz_clears(pP, qQ, modulleN, eilFuncY, NULL);
 }
 
 int main (int argc, char *argv[]) {
-
+    printf("LAB7 by Pavel Isaenko\n");
     double ts = 0;
     clock_t begin = clock();
-    unsigned long kgBitsArg = atoi(argv[1]);
-    KeyGen(/*argv[2],*/ kgBitsArg);
 
-    /* if (argc < 4 || argc > 5) { */
-    /*    PrintH(); */
-    /* } */
+    if (argc < 4 || argc > 5) {
+       PrintH();
+    }
 
-    /* if (strcmp(argv[1], "-kg")){ */
-        /* int kgBitsArg = atoi(argv[3]); */
-        /* KeyGen(argv[2], kgBitsArg); */
-    /* } else if (strcmp(argv[1], "-cr")) { */
+    if (strcmp(argv[1], "-kg") == 0){
+        unsigned long kgBitsArg = atoi(argv[3]);
+        KeyGen(argv[2], kgBitsArg);
+    } else if (strcmp(argv[1], "-cr") == 0) {
 
-    /* } else PrintH(); */
-
-
+        printf("Готовится\n");
+    } else PrintH();
 
     clock_t end = clock();
     ts = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("%f seconds \n", ts);
     return EXIT_SUCCESS;
 }
-
