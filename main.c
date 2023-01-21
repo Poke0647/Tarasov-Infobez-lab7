@@ -8,6 +8,7 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 struct timespec startKG;
 mpz_t prNumForFunc;
@@ -213,6 +214,123 @@ mpz_init(prNumForFunc);
 mpz_clears(pP, qQ, modulleN, eilFuncY, NULL);
 }
 
+void Encryption(char *pubKeyPass){
+    FILE * keyFile;
+    keyFile = fopen(pubKeyPass, "r");
+    char *pubKeyS1 = malloc(sizeof(char[2500])); // сторка с модулем
+    char *pubKeyS2 = malloc(sizeof(char[6])); //  строка с экспонентой
+//////// РАБОТА С КЛЮЧОМ//
+//////////////////////////
+    // чтение модуля
+    while (getc(keyFile) != '\n'){ // пропускаем первую строку
+    }
+    for (int i = 0; i < 44; i++){ // пропускаем первые 44 символа
+        getc(keyFile);
+    }
+    int modulusSymbols = 0;
+    while (pubKeyS1[modulusSymbols-1] != '\n'){ // считываем модуль
+    pubKeyS1[modulusSymbols] = fgetc(keyFile);
+    modulusSymbols++; // считаем количество знаков у модуля
+    }
+    // modulus только для хранения модуля
+    mpz_t modulus;
+    mpz_init(modulus);
+    mpz_set_str(modulus, pubKeyS1, 10);
+    gmp_printf("MODULUS\n%Zd\n\n", modulus);
+    free(pubKeyS1);
+    // чтение открытой экспоненты
+    for(int i = 0; i < 44; i++){ // пропускаем 44 символа перед
+        getc(keyFile);
+    }
+    int pubKeyCounter = 0;
+    while (pubKeyS2[pubKeyCounter-1] != '\n'){
+        pubKeyS2[pubKeyCounter] = fgetc(keyFile);
+        pubKeyCounter++;
+    }
+    // publicExponent только для хранения открытой экпоненты
+    unsigned int publicExponent = atoi(pubKeyS2);
+    printf("PUBLIC_EXPONENT\n%d\n\n", publicExponent);
+    free(pubKeyS2);
+///////// РАБОТА С СООБЩЕНИЕМ//
+///////////////////////////////
+    // подготовка к вводу сообщения
+    char* inp = malloc(sizeof(char[1025]));
+    char* outp = malloc(sizeof(char[1024]) * modulusSymbols + 1);
+    modulusSymbols--; // подготовили для хранения количества знаков
+    printf("modulusSymbols %d\n", modulusSymbols);
+    int messageIterator = 0;
+    int intCharBuf; // хранение символов в виде int - 96
+    mpz_t mpzCharBuf;       // хранение символов в виде mpz
+    mpz_init(mpzCharBuf);   //
+    int charLength; // длина зашифрованного символа в формате mpz
+    mpz_t tempMpzCharBuf;       // временное хранение символов в виде mpz
+    mpz_init(tempMpzCharBuf);   //
+    mpz_t tempMpzCharBuf2;      // временное хранение символа в виде mpz пред отправкой к toOutp
+    mpz_init(tempMpzCharBuf2);  //
+    char *toOutp = malloc(sizeof(char[2])); // хранение символа цифры перед отправкой в вывод
+    int toOutIterator;
+    int toOutInt;
+    // ввод сообщения
+    printf("Введите сообщение(максимум 1024 символов).\nКогда захотите выйти, нажмите Ctrl + C\n");
+    scanf("%s", inp);
+    while (inp[messageIterator] != '\0'){
+        printf("%c %d\n", inp[messageIterator], messageIterator);
+        intCharBuf = tolower((int)inp[messageIterator]) - 96; // приводим все вводимые симолы в нижний регистр и отнимаем у их значения 96 для удобства представления
+        mpz_set_ui(mpzCharBuf, intCharBuf); // переводим символ int -> mpz для дальнейшей работы с большими числами
+        mpz_pow_ui(mpzCharBuf, mpzCharBuf, publicExponent); // c = m^e mod n
+        mpz_mod(mpzCharBuf, mpzCharBuf, modulus);           //
+        //вычисление длины числа, полученного после шифрования буквы
+        mpz_set(tempMpzCharBuf, mpzCharBuf);
+        charLength = 0;
+        while (mpz_cmp_ui(tempMpzCharBuf, 0) > 0){
+            mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+            charLength++;
+        }
+        toOutIterator = 0;
+        //запись нулей перед числом, более коротким чем модуль
+        for (int j = 0; j < (modulusSymbols - charLength); j++){
+            outp[(messageIterator * modulusSymbols) + toOutIterator]='0';
+            toOutIterator++;
+        }
+        mpz_set_ui(tempMpzCharBuf, 1);
+/* gmp_printf("tmcb %Zd %d\n", tempMpzCharBuf, charLength); */
+        for (int j = 0; j < charLength - 1; j++){
+            mpz_mul_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+        }
+gmp_printf("forDiv: %Zd\n", tempMpzCharBuf);
+/* gmp_printf("%Zd %Zd %Zd\n", tempMpzCharBuf2, mpzCharBuf, tempMpzCharBuf); */
+        for (int i = modulusSymbols - charLength; i < charLength; i++){
+/* gmp_printf("%Zd\n", tempMpzCharBuf2); */
+            if (mpz_cmp_ui(mpzCharBuf, 1) == 0){
+                toOutInt = 1;
+            } else {
+                mpz_div(tempMpzCharBuf2, mpzCharBuf, tempMpzCharBuf);
+                toOutInt = mpz_get_ui(tempMpzCharBuf2);
+            }
+/* gmp_printf("kek %d %Zd %Zd %Zd\n", toOutInt, tempMpzCharBuf2, mpzCharBuf, tempMpzCharBuf); */
+            mpz_mod(mpzCharBuf, mpzCharBuf, tempMpzCharBuf);
+            mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+gmp_printf("%Zd %d %d\n", tempMpzCharBuf2, toOutInt, toOutIterator);
+            toOutp[0] = toOutInt;
+            outp[messageIterator * modulusSymbols + toOutIterator] = toOutp[0];
+            toOutIterator++;
+        }
+        printf("outp %d %s\n", messageIterator, outp);
+        messageIterator++;
+    }
+    mpz_clears(modulus, mpzCharBuf, tempMpzCharBuf, tempMpzCharBuf2, NULL);
+    free(toOutp);
+}
+/* (messageIterator * modulusSymbols) + toOutIterator - 1 */
+void Decoding(char *prKeyPass){
+    mpz_t message;
+    mpz_init(message);
+
+    gmp_scanf("%Zd", message);
+
+
+}
+
 int main (int argc, char *argv[]) {
     printf("LAB7 by Pavel Isaenko\n");
     double ts = 0;
@@ -226,7 +344,11 @@ int main (int argc, char *argv[]) {
         unsigned long kgBitsArg = atoi(argv[3]);
         KeyGen(argv[2], kgBitsArg);
     } else if (strcmp(argv[1], "-cr") == 0) {
-
+        if (strcmp(argv[2], "-ec") == 0){
+            Encryption(argv[3]);
+        } else if (strcmp(argv[2], "-dc") == 0) {
+            Decoding(argv[3]);
+        } else PrintH();
         printf("Готовится\n");
     } else PrintH();
 

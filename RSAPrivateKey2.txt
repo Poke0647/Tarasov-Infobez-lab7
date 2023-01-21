@@ -1,0 +1,8 @@
+RSAPrivateKey ::= SEQUENCE {
+            modulus           INTEGER,  -- 5963
+            publicExponent    INTEGER,  -- 5
+            privateExponent   INTEGER,  -- -2314885530818453536
+            prime1            INTEGER,  -- 89
+            prime2            INTEGER,  -- 67
+        }
+
