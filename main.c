@@ -252,7 +252,7 @@ void Encryption(char *pubKeyPass, char *isFile){
     }
     // publicExponent только для хранения открытой экпоненты
     unsigned int publicExponent = atoi(pubKeyS2);
-    printf("PUBLIC_EXPONENT\n%d\n\n", publicExponent);
+    printf("PUBLIC EXPONENT\n%d\n\n", publicExponent);
     free(pubKeyS2);
     fclose(keyFile);
 ///////// РАБОТА С СООБЩЕНИЕМ//
@@ -275,7 +275,7 @@ void Encryption(char *pubKeyPass, char *isFile){
     int toOutIterator;
     int toOutInt;
     // ввод сообщения
-    printf("Введите сообщение(максимум 1024 символов).\nКогда захотите выйти, нажмите Ctrl + C\n");
+    printf("Введите сообщение(максимум 1024 символа).\nКогда захотите выйти, нажмите Ctrl + C\n");
     scanf("%s", inp);
     while (inp[messageIterator] != '\0'){
         intCharBuf = tolower((int)inp[messageIterator]) - 95; // приводим все вводимые симолы в нижний регистр и отнимаем у их значения 96 для удобства представления */
