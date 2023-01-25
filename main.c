@@ -309,7 +309,7 @@ void Encryption(char *pubKeyPass, char *isFile){
     int toOutInt;
     // ввод сообщения
     printf("Введите сообщение(максимум 1024 символа).\nКогда захотите выйти, нажмите Ctrl + C\n>> ");
-    scanf("%s", inp);
+    scanf("%s", inp); //заменить на fgets/////////////////////////////////////////////////////////////////////////////////////////////////////////
     while (inp[messageIterator] != '\0'){
         intCharBuf = tolower((int)inp[messageIterator]) - 95; // приводим все вводимые симолы в нижний регистр и отнимаем у их значения 96 для удобства представления */
         mpz_set_ui(mpzCharBuf, intCharBuf); // переводим символ int -> mpz для дальнейшей работы с большими числами
