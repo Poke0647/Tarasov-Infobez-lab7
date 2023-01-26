@@ -13,6 +13,16 @@
 
 struct timespec startKG;
 mpz_t prNumForFunc;
+int percents = 0;
+
+void draw_progress_bar( int percents ) {
+    int half = percents / 2;
+    printf( "\r [" );
+    for ( int i = 0; i <    half; ++i ) putc( (char)120, stdout );
+    for ( int i = 0; i < 50-half; ++i ) putc( ' ', stdout );
+    printf( "] %3d %%", percents );
+    fflush( stdout );
+}
 
 void PrintH (){
     system ("./printer.sh 1");
@@ -40,14 +50,24 @@ mpz_t *PrimeNumber(unsigned long bitts){
     clock_gettime(CLOCK_MONOTONIC_RAW, &startKG);
     unsigned long int seeed = (unsigned) startKG.tv_nsec;
     seeed /= 1000;
-    printf("PrimeNumber seed: %lu\n", seeed);
-
+    /* printf("PrimeNumber seed: %lu\n", seeed); */
+    percents += 5;
+    draw_progress_bar(percents);
     gmp_randstate_t randd;
+    percents += 5;
+    draw_progress_bar(percents);
     gmp_randinit_mt(randd);
+    percents += 5;
+    draw_progress_bar(percents);
     gmp_randseed_ui(randd, seeed);
-
+    percents += 5;
+    draw_progress_bar(percents);
     mpz_urandomb(prNumForFunc, randd, bitts);
+    percents += 5;
+    draw_progress_bar(percents);
     mpz_nextprime(prNumForFunc, prNumForFunc);
+    percents += 5;
+    draw_progress_bar(percents);
     gmp_randclear(randd);
     return &prNumForFunc;
 }
@@ -58,7 +78,6 @@ mpz_init(prNumForFunc);
     mpz_t p;
     mpz_init(p);
     mpz_set(p, *PrimeNumber(bits));
-    /* gmp_printf("p: %Zd \n", p); */
 
     mpz_t pP;
     mpz_init(pP);
@@ -67,7 +86,6 @@ mpz_init(prNumForFunc);
     mpz_t q;
     mpz_init(q);
     mpz_set(q, *PrimeNumber(bits));
-    /* gmp_printf("q: %Zd \n", q); */
 
     mpz_t qQ;
     mpz_init(qQ);
@@ -85,27 +103,27 @@ mpz_init(prNumForFunc);
     mpz_sub_ui(eilFuncY, p, 1);
     mpz_sub_ui(eilFuncY2, q, 1);
     mpz_mul(eilFuncY, eilFuncY, eilFuncY2);
-    /* gmp_printf("eilFunc: %Zd\n", eilFuncY); */
-
-    /* mpz_clears(p, q, eilFuncY2); */
+    percents += 5;
+    draw_progress_bar(percents);
 //выбор открытой экспоненты и поиск d
-
     mpz_t x, y;
     mpz_inits(x, y, NULL);
 
-
+    percents += 5;
+    draw_progress_bar(percents);
     mpz_t a, a1, a2, b, b1, b2;
     mpz_inits(a, a1, a2, b, b1, b2, NULL);
 
     mpz_t q1, r, m;
     mpz_inits(q1, r, m, NULL);
-
+    percents += 5;
+    draw_progress_bar(percents);
     mpz_t buf;
     mpz_init(buf);
 
     unsigned long int e = 0;
     while (mpz_cmp_ui(m, 1) != 0){
-        e > 0 ? printf("Число не подошло. Выберите другое:\n") : printf("Пожалуйста, выберите открытую экспоненту (введя число 1-5):\n");
+        e > 0 ? printf("Число не подошло. Выберите другое:\n") : printf("\rПожалуйста, выберите открытую экспоненту (введя число 1-5):\n");
         system("./printer.sh 2");
         scanf("%lu", &e);
 
@@ -127,9 +145,6 @@ mpz_init(prNumForFunc);
                 break;
         }
             //Расширенный алг Евклида
-            /* gmp_printf("\ntry %Zd %Zd\n", eilFuncY, ee); // переделать без использования mpz_gcd */
-            /* mpz_cmp(ee, eilFuncY) > 0 ? mpz_gcd(ee, eilFuncY, ee) : mpz_gcd(ee, ee, eilFuncY); */
-
             mpz_set_ui(y, e);
             mpz_set(x, eilFuncY);
 
@@ -141,44 +156,36 @@ mpz_init(prNumForFunc);
             while (mpz_cmp_ui(y, 0) != 0){
                 mpz_div(q1, x, y);
                 mpz_submul(x, q1, y);
-                /* mpz_mul(buf, q1, y); */
-                /* mpz_sub(buf, x, buf); */
                 mpz_set(r, x);
                 mpz_submul(a2, q1, a1);
-                /* mpz_mul(buf, q1, a1); */
-                /* mpz_sub(buf, a2, buf); */
                 mpz_set(a, a2);
                 mpz_submul(b2, q1, b1);
-                /* mpz_mul(buf, q1, b1); */
-                /* mpz_sub(buf, b2, buf); */
+
                 mpz_set(b, b2);
-/* gmp_printf("1) %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd\n", x, y, a, a1, a2, b, b1, b2, q1, m); */
                 mpz_set(x, y);
                 mpz_set(y, r);
                 mpz_set(a2, a1);
                 mpz_set(a1, a);
                 mpz_set(b2, b1);
                 mpz_set(b1, b);
-/* gmp_printf("2) %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd\n", x, y, a, a1, a2, b, b1, b2, q1, m); */
             }
+
             mpz_set(m, x);
             mpz_set(a, a2);
             mpz_set(b, b2);
-/* gmp_printf("%Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd %Zd\n", x, y, a, a1, a2, b, b1, b2, q1, m); */
-
-
-            /* gmp_printf("y = %Zd\nm = %Zd\na = %Zd\nb = %Zd\n", y, m, a, b); */
     }
+    percents += 15;
+    draw_progress_bar(percents);
     if (mpz_cmp_ui(b, 0) < 0){
         mpz_add(b, b, eilFuncY);
     }
-
-gmp_printf("\n%Zd\n", b);
-
+    percents += 5;
+    draw_progress_bar(percents);
     mpz_clear(prNumForFunc);
     mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b1, b2, q1, r, m, NULL);
 
     if (strcmp(isFile, "-c") == 0){
+        printf("\r");
         //вывод в консоль
         printf("RSAPublicKey ::= SEQUENCE {\n");
         gmp_printf("            modulus           INTEGER,  -- %Zd\n", modulleN);
@@ -236,7 +243,7 @@ gmp_printf("\n%Zd\n", b);
             gmp_fprintf(outFPr, "            prime2            INTEGER,  -- %Zd\n", qQ);
             fprintf(outFPr, "        }\n\n");
             fclose(outFPr);
-            printf("Готово!\n");
+            printf("\nГотово!\n");
         }
 
         free(outFileName);
@@ -294,7 +301,6 @@ void Encryption(char *pubKeyPass, char *isFile){
     char* inp = malloc(sizeof(char[1025]));
     char* outp = malloc(sizeof(char[1024]) * modulusSymbols + 1);
     modulusSymbols--; // подготовили для хранения количества знаков
-    printf("modulusSymbols %d\n", modulusSymbols);
     int messageIterator = 0;
     int intCharBuf; // хранение символов в виде int - 96
     mpz_t mpzCharBuf;       // хранение символов в виде mpz
@@ -308,79 +314,84 @@ void Encryption(char *pubKeyPass, char *isFile){
     int toOutIterator;
     int toOutInt;
     // ввод сообщения
-    printf("Введите сообщение(максимум 1024 символа).\nКогда захотите выйти, нажмите Ctrl + C\n>> ");
-    scanf("%s", inp); //заменить на fgets/////////////////////////////////////////////////////////////////////////////////////////////////////////
-    while (inp[messageIterator] != '\0'){
-        intCharBuf = tolower((int)inp[messageIterator]) - 95; // приводим все вводимые симолы в нижний регистр и отнимаем у их значения 96 для удобства представления */
-        mpz_set_ui(mpzCharBuf, intCharBuf); // переводим символ int -> mpz для дальнейшей работы с большими числами
-        mpz_pow_ui(mpzCharBuf, mpzCharBuf, publicExponent); // c = m^e mod n
-        mpz_mod(mpzCharBuf, mpzCharBuf, modulus);           //
-        //вычисление длины числа, полученного после шифрования буквы
-        mpz_set(tempMpzCharBuf, mpzCharBuf);
-        charLength = 0;
-        while (mpz_cmp_ui(tempMpzCharBuf, 0) > 0){
-            mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
-            charLength++;
-        }
+    strcmp(isFile, "-c") == 0 ? printf("Вводите сообщения (максимум 1024 символа).\nКогда захотите выйти, нажмите Ctrl + C\n") : printf("Введите сообщение (максимум 1024 символа)\n");
+    while(1){
+        messageIterator = 0;
         toOutIterator = 0;
-        //запись нулей перед числом, более коротким чем модуль
-        for (int j = 0; j < (modulusSymbols - charLength); j++){
-            outp[(messageIterator * modulusSymbols) + toOutIterator]='0';
-            toOutIterator++;
+        printf(">> ");
+        fgets(inp, 1024, stdin);
+        while (inp[messageIterator] != '\0'){
+            intCharBuf = tolower((int)inp[messageIterator]) - 95; // приводим все вводимые симолы в нижний регистр и отнимаем у их значения 96 для удобства представления */
+            mpz_set_ui(mpzCharBuf, intCharBuf); // переводим символ int -> mpz для дальнейшей работы с большими числами
+            mpz_pow_ui(mpzCharBuf, mpzCharBuf, publicExponent); // c = m^e mod n
+            mpz_mod(mpzCharBuf, mpzCharBuf, modulus);           //
+            //вычисление длины числа, полученного после шифрования буквы
+            mpz_set(tempMpzCharBuf, mpzCharBuf);
+            charLength = 0;
+            while (mpz_cmp_ui(tempMpzCharBuf, 0) > 0){
+                mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+                charLength++;
+            }
+            toOutIterator = 0;
+            //запись нулей перед числом, более коротким чем модуль
+            for (int j = 0; j < (modulusSymbols - charLength); j++){
+                outp[(messageIterator * modulusSymbols) + toOutIterator]='0';
+                toOutIterator++;
+            }
+            mpz_set_ui(tempMpzCharBuf, 1);
+            for (int j = 0; j < charLength - 1; j++){
+                mpz_mul_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+            }
+            for (int i = modulusSymbols - charLength; i < modulusSymbols; i++){
+                if (mpz_cmp_ui(mpzCharBuf, 1) == 0){
+                    toOutInt = 1;
+                } else {
+                    mpz_div(tempMpzCharBuf2, mpzCharBuf, tempMpzCharBuf);
+                    toOutInt = mpz_get_ui(tempMpzCharBuf2);
+                }
+                mpz_mod(mpzCharBuf, mpzCharBuf, tempMpzCharBuf);
+                mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
+                sprintf(toOutp, "%d", toOutInt);
+                outp[messageIterator * modulusSymbols + toOutIterator] = toOutp[0];
+                toOutIterator++;
+            }
+            messageIterator++;
         }
-        mpz_set_ui(tempMpzCharBuf, 1);
-        for (int j = 0; j < charLength - 1; j++){
-            mpz_mul_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
-        }
-        for (int i = modulusSymbols - charLength; i < modulusSymbols; i++){
-            if (mpz_cmp_ui(mpzCharBuf, 1) == 0){
-                toOutInt = 1;
+        if (strcmp(isFile, "-c") == 0){
+            printf("<< %s\n", outp);
+        } else {
+            int outFileNum = 0;
+            char *outFileName = malloc(sizeof(char[21]));
+            char *outFileName2 = malloc(sizeof(char[22]));
+
+            sprintf(outFileName, "OutMessage.txt");
+            while (access(outFileName, F_OK) == 0){
+                outFileNum++;
+                sprintf(outFileName, "OutMessage%d.txt", outFileNum);
+                if (outFileNum > 1000) {
+                    perror("File creation");
+                    _exit(0);
+                }
+            }
+            if (outFileNum == 0) {
+                sprintf(outFileName2, "OutMessage.txt");
             } else {
-                mpz_div(tempMpzCharBuf2, mpzCharBuf, tempMpzCharBuf);
-                toOutInt = mpz_get_ui(tempMpzCharBuf2);
+                sprintf(outFileName2, "OutMessage%d.txt", outFileNum);
             }
-            mpz_mod(mpzCharBuf, mpzCharBuf, tempMpzCharBuf);
-            mpz_div_ui(tempMpzCharBuf, tempMpzCharBuf, 10);
-            sprintf(toOutp, "%d", toOutInt);
-            outp[messageIterator * modulusSymbols + toOutIterator] = toOutp[0];
-            toOutIterator++;
-        }
-        messageIterator++;
-    }
-    if (strcmp(isFile, "-c") == 0){
-        printf("outp %s\n", outp);
-    } else {
-        int outFileNum = 0;
-        char *outFileName = malloc(sizeof(char[21]));
-        char *outFileName2 = malloc(sizeof(char[22]));
 
-        sprintf(outFileName, "OutMessage.txt");
-        while (access(outFileName, F_OK) == 0){
-            outFileNum++;
-            sprintf(outFileName, "OutMessage%d.txt", outFileNum);
-            if (outFileNum > 1000) {
-                perror("File creation");
-                _exit(0);
+            if (access(outFileName2, F_OK) == 0){
+                printf("Удалите или переместите в другой каталог файл %s\n", outFileName);
+            } else {
+                FILE *outMesFile;
+                outMesFile = fopen(outFileName, "w");
+                fprintf(outMesFile, "EncryptedData :: = SEQUENCE {\n");
+                fprintf(outMesFile, "%s\n", outp);
+                fprintf(outMesFile, "        }\n\n");
+                fclose(outMesFile);
             }
-        }
-        if (outFileNum == 0) {
-            sprintf(outFileName2, "OutMessage.txt");
-        } else {
-            sprintf(outFileName2, "OutMessage%d.txt", outFileNum);
-        }
-
-        if (access(outFileName2, F_OK) == 0){
-            printf("Удалите или переместите в другой каталог файл %s\n", outFileName);
-        } else {
-            FILE *outMesFile;
-            outMesFile = fopen(outFileName, "w");
-            fprintf(outMesFile, "EncryptedData :: = SEQUENCE {\n");
-            fprintf(outMesFile, "%s\n", outp);
-            fprintf(outMesFile, "        }\n\n");
-            fclose(outMesFile);
+            break;
         }
     }
-
     mpz_clears(modulus, mpzCharBuf, tempMpzCharBuf, tempMpzCharBuf2, NULL);
     free(inp);
     free(outp);
@@ -420,22 +431,18 @@ void Decryption(char *prKeyPass, char *crMesPass){
         getc(keyFile);
     }
     int prExpSimbs = 0;
-/* printf("r\n"); */
     do { // считываем d
     prKeyS2[prExpSimbs] = fgetc(keyFile);
     prExpSimbs++; // считаем количество знаков у d
     } while (prKeyS2[prExpSimbs - 1] != '\n');
     // modulus только для хранения d
-/* printf("r\n"); */
     mpz_t prExp;
     mpz_init(prExp);
     mpz_set_str(prExp, prKeyS2, 10);
-/* gmp_printf("PRIVATE EXPONENT\n%Zd\n\n", prExp); */
     free(prKeyS2);
 ///// получение зашифрованного сообщения//
 //////////////////////////////////////////
     // подготовка
-/* printf("%d\n", modulusSymbols * 1024 + 1); */
     char* inp = malloc(sizeof(char[1024]) * modulusSymbols + 1);
     char* outp = malloc(sizeof(char[1025]));
     int messSimbols = 0;
@@ -452,51 +459,47 @@ void Decryption(char *prKeyPass, char *crMesPass){
     mpz_t messPow10;
     mpz_init(messPow10);
     // получение
-    if (strcmp(crMesPass, "-c") == 0){
-        printf("Пожалуйста, введите шифртекст:\n");
-        scanf("%s", inp);
-        messSimbols = strlen(inp);
-    } else {
-        FILE * crMesFile;
-        if ((crMesFile = fopen(crMesPass, "r")) == NULL){
-            printf("Opening %s...\n", crMesPass);
-            perror("fopen: crMesFile");
-            exit(1);
+    strcmp(crMesPass, "-c") == 0 ? printf("Вводите шифртекст (Ctrl + C для выхода):\n") : printf("Открываем %s ...\n", crMesPass);
+    while (1) {
+        messSimbols = 0;
+        if (strcmp(crMesPass, "-c") == 0){
+            printf(">> ");
+            scanf("%s", inp);
+            messSimbols = strlen(inp);
+        } else {
+            FILE * crMesFile;
+            if ((crMesFile = fopen(crMesPass, "r")) == NULL){
+                /* printf("Opening %s ...\n", crMesPass); */
+                perror("fopen: crMesFile");
+                exit(1);
+            }
+            while (getc(crMesFile) != '\n'){ // пропускаем строку
+            }
+            while ((inp[messSimbols] = getc(crMesFile)) != '\n'){
+                messSimbols++;
+            }
+            fclose(crMesFile);
         }
-        while (getc(crMesFile) != '\n'){ // пропускаем строку
-        }
-        while ((inp[messSimbols] = getc(crMesFile)) != '\n'){
-            messSimbols++;
-        }
-        fclose(crMesFile);
-    }
 
-    mpz_set_str(crMess, inp, 10);
-/* gmp_printf("%d\nCrypted Message\n%Zd\n",messSimbols, crMess); */
-    mpz_ui_pow_ui(modulusPow10, 10, modulusSymbols - 1);
-    mpz_ui_pow_ui(messPow10, 10, messSimbols);
-    mpz_div(messPow10, messPow10, modulusPow10);
-    mpz_set(mpzCharBuf, crMess);
-    outpIterator = 0;
-/* printf("r\n"); */
-    while (mpz_cmp_ui(mpzCharBuf, 0) > 0){
-/* gmp_printf("%Zd\n", messPow10); */
-        mpz_div(tempMpzCharBuf, mpzCharBuf, messPow10);
-        mpz_mod(mpzCharBuf, mpzCharBuf, messPow10);
+        mpz_set_str(crMess, inp, 10);
+        mpz_ui_pow_ui(modulusPow10, 10, modulusSymbols - 1);
+        mpz_ui_pow_ui(messPow10, 10, messSimbols);
         mpz_div(messPow10, messPow10, modulusPow10);
+        mpz_set(mpzCharBuf, crMess);
+        outpIterator = 0;
+        while (mpz_cmp_ui(mpzCharBuf, 0) > 0){
+            mpz_div(tempMpzCharBuf, mpzCharBuf, messPow10);
+            mpz_mod(mpzCharBuf, mpzCharBuf, messPow10);
+            mpz_div(messPow10, messPow10, modulusPow10);
 
-/* gmp_printf("tmcb %Zd\nmcb %Zd\nmp10 %Zd\n", tempMpzCharBuf, mpzCharBuf, messPow10); */
-        mpz_powm(tempMpzCharBuf, tempMpzCharBuf, prExp, modulus);
-        resBuf = mpz_get_ui(tempMpzCharBuf) + 95;
-/* printf("%d\n", resBuf); */
-        outp[outpIterator] = (char)resBuf;
-        outpIterator++;
-/* printf("%d ", outpIterator); */
-/* gmp_printf("%Zd\n", mpzCharBuf); */
-
+            mpz_powm(tempMpzCharBuf, tempMpzCharBuf, prExp, modulus);
+            resBuf = mpz_get_ui(tempMpzCharBuf) + 95;
+            outp[outpIterator] = (char)resBuf;
+            outpIterator++;
+        }
+    printf("<< %s\n", outp);
+    if(strcmp(crMesPass, "-c") != 0) break;
     }
-printf("%s\n", outp);
-
     free(inp);
     free(outp);
     mpz_clears(modulus, prExp, NULL);
@@ -507,6 +510,8 @@ int main (int argc, char *argv[]) {
     printf("LAB7 by Pavel Isaenko\n");
     double ts = 0;
     clock_t begin = clock();
+    percents += 5;
+    draw_progress_bar(percents);
     if (argc < 4 || argc > 6) {
        PrintH();
     }
