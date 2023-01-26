@@ -510,8 +510,7 @@ int main (int argc, char *argv[]) {
     printf("LAB7 by Pavel Isaenko\n");
     double ts = 0;
     clock_t begin = clock();
-    percents += 5;
-    draw_progress_bar(percents);
+
     if (argc < 4 || argc > 6) {
        PrintH();
     }
@@ -538,7 +537,8 @@ int main (int argc, char *argv[]) {
 
         } else PrintH();
     } else PrintH();
-
+    percents += 5;
+    draw_progress_bar(percents);
     clock_t end = clock();
     ts = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("%f seconds \n", ts);
