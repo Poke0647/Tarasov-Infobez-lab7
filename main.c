@@ -280,7 +280,7 @@ void Encryption(char *pubKeyPass, char *isFile){
     mpz_t modulus;
     mpz_init(modulus);
     mpz_set_str(modulus, pubKeyS1, 10);
-    gmp_printf("MODULUS\n%Zd\n\n", modulus);
+    /* gmp_printf("MODULUS\n%Zd\n\n", modulus); */
     free(pubKeyS1);
     // чтение открытой экспоненты
     for(int i = 0; i < 43; i++){ // пропускаем 44 символа перед
@@ -293,7 +293,7 @@ void Encryption(char *pubKeyPass, char *isFile){
     }
     // publicExponent только для хранения открытой экпоненты
     unsigned int publicExponent = atoi(pubKeyS2);
-    printf("PUBLIC EXPONENT\n%d\n\n", publicExponent);
+    /* printf("PUBLIC EXPONENT\n%d\n\n", publicExponent); */
     free(pubKeyS2);
     fclose(keyFile);
 ///////// РАБОТА С СООБЩЕНИЕМ//
