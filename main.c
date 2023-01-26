@@ -51,23 +51,23 @@ mpz_t *PrimeNumber(unsigned long bitts){
     unsigned long int seeed = (unsigned) startKG.tv_nsec;
     seeed /= 1000;
     /* printf("PrimeNumber seed: %lu\n", seeed); */
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     gmp_randstate_t randd;
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     gmp_randinit_mt(randd);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     gmp_randseed_ui(randd, seeed);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     mpz_urandomb(prNumForFunc, randd, bitts);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     mpz_nextprime(prNumForFunc, prNumForFunc);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     gmp_randclear(randd);
     return &prNumForFunc;
 }
@@ -82,7 +82,8 @@ mpz_init(prNumForFunc);
     mpz_t pP;
     mpz_init(pP);
     mpz_set(pP, p);
-
+percents += 5;
+draw_progress_bar(percents);
     mpz_t q;
     mpz_init(q);
     mpz_set(q, *PrimeNumber(bits));
@@ -537,8 +538,7 @@ int main (int argc, char *argv[]) {
 
         } else PrintH();
     } else PrintH();
-    percents += 5;
-    draw_progress_bar(percents);
+
     clock_t end = clock();
     ts = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("%f seconds \n", ts);
