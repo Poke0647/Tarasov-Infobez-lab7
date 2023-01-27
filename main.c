@@ -1,12 +1,11 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <gmp.h>
 #include <time.h>
-#include<sys/types.h>
-#include<sys/stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <ctype.h>
 #include <termios.h>
@@ -51,24 +50,13 @@ mpz_t *PrimeNumber(unsigned long bitts){
     unsigned long int seeed = (unsigned) startKG.tv_nsec;
     seeed /= 1000;
     /* printf("PrimeNumber seed: %lu\n", seeed); */
-percents += 5;
-draw_progress_bar(percents);
     
     gmp_randstate_t randd;
-percents += 5;
-draw_progress_bar(percents);
-    
     gmp_randinit_mt(randd);
-percents += 5;
-draw_progress_bar(percents);
-    gmp_randseed_ui(randd, seeed);
-percents += 5;
-draw_progress_bar(percents);
+    
     mpz_urandomb(prNumForFunc, randd, bitts);
-percents += 5;
-draw_progress_bar(percents);
     mpz_nextprime(prNumForFunc, prNumForFunc);
-percents += 5;
+percents += 30;
 draw_progress_bar(percents);
     gmp_randclear(randd);
     return &prNumForFunc;
@@ -106,21 +94,21 @@ draw_progress_bar(percents);
     mpz_sub_ui(eilFuncY, p, 1);
     mpz_sub_ui(eilFuncY2, q, 1);
     mpz_mul(eilFuncY, eilFuncY, eilFuncY2);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
 //выбор открытой экспоненты и поиск d
     mpz_t x, y;
     mpz_inits(x, y, NULL);
 
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     mpz_t a, a1, a2, b, b1, b2;
     mpz_inits(a, a1, a2, b, b1, b2, NULL);
 
     mpz_t q1, r, m;
     mpz_inits(q1, r, m, NULL);
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     mpz_t buf;
     mpz_init(buf);
 
@@ -179,13 +167,13 @@ draw_progress_bar(percents);
             mpz_set(a, a2);
             mpz_set(b, b2);
     }
-    percents += 15;
-    draw_progress_bar(percents);
+percents += 15;
+draw_progress_bar(percents);
     if (mpz_cmp_ui(b, 0) < 0){
         mpz_add(b, b, eilFuncY);
     }
-    percents += 5;
-    draw_progress_bar(percents);
+percents += 5;
+draw_progress_bar(percents);
     mpz_clear(prNumForFunc);
     mpz_clears(p, q, eilFuncY2, x, y, a, a1, a2, b1, b2, q1, r, m, NULL);
 
@@ -548,7 +536,3 @@ int main (int argc, char *argv[]) {
     /* printf("%f seconds \n", ts); */
     return EXIT_SUCCESS;
 }
-
-
-
-
