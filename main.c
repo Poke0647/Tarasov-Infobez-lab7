@@ -53,9 +53,11 @@ mpz_t *PrimeNumber(unsigned long bitts){
     /* printf("PrimeNumber seed: %lu\n", seeed); */
 percents += 5;
 draw_progress_bar(percents);
+    
     gmp_randstate_t randd;
 percents += 5;
 draw_progress_bar(percents);
+    
     gmp_randinit_mt(randd);
 percents += 5;
 draw_progress_bar(percents);
@@ -127,7 +129,6 @@ draw_progress_bar(percents);
         e > 0 ? printf("Число не подошло. Выберите другое:\n") : printf("\rПожалуйста, выберите открытую экспоненту (введя число 1-5):\n");
         system("./printer.sh 2");
         scanf("%lu", &e);
-
         switch (e){
             case 1:
                 e = 3;
@@ -144,6 +145,9 @@ draw_progress_bar(percents);
             case 5:
                 e = 65537;
                 break;
+            default:
+                printf("Введите число от 1 до 5 !!!");
+                exit(1);
         }
             //Расширенный алг Евклида
             mpz_set_ui(y, e);
