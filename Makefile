@@ -19,5 +19,4 @@ install:
 
 # Builder uses this target to run your application.
 run:
-	./lab7 1024
-
+	./lab7
